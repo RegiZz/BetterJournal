@@ -1,85 +1,62 @@
-import React from 'react';
-import 'react-native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import { View } from 'react-native-web';
-import { ToastAndroid } from 'react-native';
-const plan = require("./modules/planGet.js")
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, FlatList } from 'react-native';
+import axios from 'axios';
 
-const Stack = createNativeStackNavigator();
-let login;
-let password;
-const subjects = plan.Subjects;
+const PlanLekcjiScreen = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [planLekcji, setPlanLekcji] = useState([]);
+  const [error, setError] = useState('');
 
-function loginScreen({navigation}){
-  const [writedLogin, setWritedLogin] = useState('');
-  const [writedPass, setWritedPass] = useState('');
+  const fetchPlanLekcji = async () => {
+    try {
+      const response = await axios.post('https://librusapi-vhwb.onrender.com/api/planlekcji', {
+        username: username,
+        password: password
+      });
 
-  const zaloguj = () => {
-    login = writedLogin;
-    password = writedPass;
-    if(plan.authorizeLibrus(login,password)){
-      plan.authorizeLibrus(login,password)
-      navigation.replace("Main")
+      setPlanLekcji(response.data);
+      setError('');
+    } catch (err) {
+      setError('Nie udało się pobrać planu lekcji. Sprawdź dane logowania.');
     }
-    else{
-      ToastAndroid("Złe dane logowania!")
-    }
-    
-  }
-
-  return(
-    <View style={styles.main}>
-      <Text style={styles.title}>Logowanie do Librusa</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Login"
-        value={writedLogin}
-        onChangeText={setWritedLogin}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Hasło"
-        value={writedPass}
-        onChangeText={setWritedPass}
-        secureTextEntry
-      />
-      <Button title="Zaloguj" onPress={zaloguj} />
-    </View>
-  );
-}
-
-function mainScreen(){
-  return(
-    <View style={styles.main}>
-      <Text>{subjects.Monday}</Text> 
-    </View>
-  );
-}
-
-
-const App = () => {
-  
+  };
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={loginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Main" component={mainScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={{ padding: 20 }}>
+      <Text>Login:</Text>
+      <TextInput
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        value={username}
+        onChangeText={setUsername}
+        placeholder="Podaj login"
+      />
+      <Text>Hasło:</Text>
+      <TextInput
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Podaj hasło"
+        secureTextEntry
+      />
+
+      <Button title="Pobierz Plan Lekcji" onPress={fetchPlanLekcji} />
+
+      {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
+
+      <FlatList
+        data={planLekcji}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
+            <Text>Godzina: {item.godzina}</Text>
+            <Text>Przedmiot: {item.przedmiot}</Text>
+            <Text>Nauczyciel: {item.nauczyciel}</Text>
+          </View>
+        )}
+      />
+    </View>
   );
 };
 
-const styles = StyleSheet.create({
-  main:{
-    backgroundColor: '#01040f',
-    color: '#3d02b3'
-  }
-})
-
-export default App;
-
-module.exports = {
-  Login: login,
-  Password: password,
-}
+export default PlanLekcjiScreen;
