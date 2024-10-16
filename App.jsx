@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
 const PlanLekcjiScreen = () => {
@@ -12,7 +12,7 @@ const PlanLekcjiScreen = () => {
   const fetchPlanLekcji = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://librusapi-vhwb.onrender.com/api/planlekcji', {
+      const response = await axios.post('czekam na serwer', {
         username: username,
         password: password
       });
@@ -34,6 +34,7 @@ const PlanLekcjiScreen = () => {
         value={username}
         onChangeText={setUsername}
         placeholder="Podaj login"
+        placeholderTextColor="#888"
       />
       <Text style={styles.label}>Hasło:</Text>
       <TextInput
@@ -42,12 +43,15 @@ const PlanLekcjiScreen = () => {
         onChangeText={setPassword}
         placeholder="Podaj hasło"
         secureTextEntry
+        placeholderTextColor="#888"
       />
 
-      <Button title="Pobierz Plan Lekcji" onPress={fetchPlanLekcji} />
+      <TouchableOpacity style={styles.button} onPress={fetchPlanLekcji}>
+        <Text style={styles.buttonText}>Pobierz Plan Lekcji</Text>
+      </TouchableOpacity>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+        <ActivityIndicator size="large" color="#00ffcc" style={styles.loader} />
       ) : (
         <>
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -57,9 +61,9 @@ const PlanLekcjiScreen = () => {
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <View style={styles.planItem}>
-                <Text>Godzina: {item.godzina}</Text>
-                <Text>Przedmiot: {item.przedmiot}</Text>
-                <Text>Nauczyciel: {item.nauczyciel}</Text>
+                <Text style={styles.planText}>Godzina: {item.godzina}</Text>
+                <Text style={styles.planText}>Przedmiot: {item.przedmiot}</Text>
+                <Text style={styles.planText}>Nauczyciel: {item.nauczyciel}</Text>
               </View>
             )}
           />
@@ -71,21 +75,37 @@ const PlanLekcjiScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: '#01080a',
     flex: 1,
+    padding: 20,
+    backgroundColor: '#1a1a1a',
   },
   label: {
-    color: 'white',
+    color: '#fff',
     marginBottom: 5,
+    fontSize: 16,
+    fontWeight: '600',
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 50,
+    borderColor: '#333',
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: 15,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    backgroundColor: '#2b2b2b',
     color: 'white',
-    paddingHorizontal: 10,
+  },
+  button: {
+    backgroundColor: '#00cc99',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   loader: {
     marginTop: 20,
@@ -93,11 +113,17 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginTop: 10,
+    fontSize: 14,
   },
   planItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: '#292929',
+    marginBottom: 10,
+  },
+  planText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 
