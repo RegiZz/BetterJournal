@@ -12,7 +12,7 @@ const PlanLekcjiScreen = () => {
   const fetchPlanLekcji = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('czekam na serwer', {
+      const response = await axios.post('http://51.83.129.36:8080/api/planlekcji', {
         username: username,
         password: password
       });
